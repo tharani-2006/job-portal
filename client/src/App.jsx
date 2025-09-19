@@ -7,6 +7,7 @@ import Applications from "./pages/Applications";
 const App = () => {
   return (
     <div>
+
       <Routes>
         <Route index element={<Home />} />
         <Route path="/apply-job/:id" element={<ApplyJob />} />
