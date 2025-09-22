@@ -133,7 +133,7 @@ const JobListing = () => {
                 {/* Pagination */}
                 {filteredJobs.length > 0 && (
                     <div className='flex items-center justify-center space-x-2 mt-10'>
-                        <a href='#job-list'>
+                        <a key={index} href='#job-list'>
                             <img onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} src={assets.left_arrow_icon} alt="" />
                         </a>
                         {Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map((_, index) => (
