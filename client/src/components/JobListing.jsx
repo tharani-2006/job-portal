@@ -27,7 +27,7 @@ const JobListing = () => {
         )
     }
 
-    useEffect(() =>{
+    useEffect(() => {
 
         const matchesCategory = job => selectedCategories.length === 0 || selectedCategories.includes(job.category)
 
@@ -44,7 +44,7 @@ const JobListing = () => {
         setFilteredJobs(newFilteredJobs)
         setCurrentPage(1)
 
-    },[jobs,selectedCategories,selectedLocations,searchFilter]) 
+    }, [jobs, selectedCategories, selectedLocations, searchFilter])
 
     return (
         <div className='container 2xl:px-20 mx-auto flex flex-col lg:flex-row max-lg:space-y-8 py-8'>
@@ -133,7 +133,7 @@ const JobListing = () => {
                 {/* Pagination */}
                 {filteredJobs.length > 0 && (
                     <div className='flex items-center justify-center space-x-2 mt-10'>
-                        <a key={index} href='#job-list'>
+                        <a href='#job-list'>
                             <img onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} src={assets.left_arrow_icon} alt="" />
                         </a>
                         {Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map((_, index) => (
