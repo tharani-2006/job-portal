@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet,useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
 
 const Dashboard = () => {
@@ -12,7 +12,7 @@ const Dashboard = () => {
       {/* Navbar for Recruiter Panel */}
       <div className='shadow py-4'>
         <div className='flex px-5 justify-between items-center'>
-          <img className='max-sm:w-32 cursor-pointer' src={assets.logo} alt="" />
+          <img onClick={e => navigate('/')} className='max-sm:w-32 cursor-pointer' src={assets.logo} alt="" />
           <div className='flex items-center gap-3'>
             <p className='max-sm:hidden'>Welcome! Dude</p>
             <div className='relative group'>
@@ -25,7 +25,37 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div> 
+      </div>
+
+
+      <div className='flex items-start'> {/* items-start means fix it to left part if we add new part means that comes in right side */}
+
+        {/* Left Sidebar with option to add,manage jobs,view application */}
+        <div className='inline-block min-h-screen border-gray-200 border-r-2'>
+          <ul className='flex flex-col items-start pt-5 text-gray-800'>
+            <NavLink className={({isActive}) =>`flex items-center p-3 sm:px-6 gap-2 w-full hover:bg-gray-100 ${isActive && 'bg-blue-100 border-r-4 border-blue-500'}`} to={'/dashboard/add-job'}>
+              <img className='min-w-4' src={assets.add_icon} alt="" />
+              <p className='max-sm:hidden'>Add Job</p>
+            </NavLink>
+
+            <NavLink className={({isActive}) =>`flex items-center p-3 sm:px-6 gap-2 w-full hover:bg-gray-100 ${isActive && 'bg-blue-100 border-r-4 border-blue-500'}`} to={'/dashboard/manage-jobs'}>
+              <img className='min-w-4' src={assets.home_icon} alt="" />
+              <p className='max-sm:hidden'>Manage jobs</p>
+            </NavLink>
+
+            <NavLink className={({isActive}) =>`flex items-center p-3 sm:px-6 gap-2 w-full hover:bg-gray-100 ${isActive && 'bg-blue-100 border-r-4 border-blue-500'}`} to={'/dashboard/view-applications'}>
+              <img className='min-w-4' src={assets.person_tick_icon} alt="" />
+              <p className='max-sm:hidden'>View Applications</p>
+            </NavLink>
+          </ul>
+        </div>
+
+        <div>
+          <Outlet />
+        </div>
+
+      </div>
+
     </div>
   )
 }
