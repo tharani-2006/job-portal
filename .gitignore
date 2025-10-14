@@ -30,14 +30,6 @@ lerna-debug.log*
 /out
 
 
-# Editor directories and files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
 # Client specific
 client/node_modules/
