@@ -1,6 +1,7 @@
 // Vercel-compatible webhook handler
 import { Webhook } from "svix";
 import mongoose from "mongoose";
+import 'dotenv/config';
 
 // Define User schema inline to avoid import issues
 const userSchema = new mongoose.Schema({
