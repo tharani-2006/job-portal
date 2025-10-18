@@ -6,6 +6,9 @@
     },
     "api/health.js": {
       "maxDuration": 10
+    },
+    "api/env-check.js": {
+      "maxDuration": 10
     }
   },
   "routes": [
@@ -16,6 +19,10 @@
     {
       "src": "/health",
       "dest": "/api/health"
+    },
+    {
+      "src": "/env-check",
+      "dest": "/api/env-check"
     },
     {
       "src": "/",
