@@ -1,7 +1,33 @@
 // Vercel-compatible webhook handler
 import { Webhook } from "svix";
-import User from "./models/User.js";
-import connectDB from "./config/db.js";
+import mongoose from "mongoose";
+
+// Define User schema inline to avoid import issues
+const userSchema = new mongoose.Schema({
+    _id: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    resume: { type: String },
+    image: { type: String, required: true }
+});
+
+// Create User model
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+// Database connection function
+const connectDB = async () => {
+    if (mongoose.connection.readyState === 1) {
+        return; // Already connected
+    }
+    
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('Database connection error:', error);
+        throw error;
+    }
+};
 
 export default async function handler(req, res) {
     // Only allow POST requests

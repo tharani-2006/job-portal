@@ -3,6 +3,9 @@
   "functions": {
     "api/webhooks.js": {
       "maxDuration": 30
+    },
+    "api/health.js": {
+      "maxDuration": 10
     }
   },
   "routes": [
@@ -11,8 +14,12 @@
       "dest": "/api/webhooks"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/webhooks"
+      "src": "/health",
+      "dest": "/api/health"
+    },
+    {
+      "src": "/",
+      "dest": "/api/health"
     }
   ]
 }
