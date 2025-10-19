@@ -1,25 +1,20 @@
-{
-  "version": 2,
-  "functions": {
-    "api/webhooks.js": {
-      "maxDuration": 30
-    },
-    "api/health.js": {
-      "maxDuration": 10
-    }
-  },
-  "routes": [
-    {
-      "src": "/webhooks",
-      "dest": "/api/webhooks"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/health"
-    },
-    {
-      "src": "/",
-      "dest": "/api/health"
-    }
-  ]
+  {
+    "version": 2,
+    "builds": [
+        {
+            "src": "server.js",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "dist/**"
+                ]
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "server.js"
+        }
+    ]
 }
