@@ -18,7 +18,6 @@ app.use(cors())
 app.use(express.json())
 
 //Routes
-// app.post('/webhooks',clerkWebhooks)
 app.post(
   '/webhooks', 
   express.raw({ type: 'application/json' }), 
