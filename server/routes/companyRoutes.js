@@ -11,7 +11,7 @@ import { changeVisibility } from '../controllers/companyController.js'
 const router = express.Router()
 
 //register a new company
-router.post('/register', registerCompany)
+router.post('/register',upload.single('image'), registerCompany)
 
 //company login
 router.post('/login', loginCompany)
