@@ -17,7 +17,7 @@ router.post('/register',upload.single('image'), registerCompany)
 router.post('/login', loginCompany)
 
 //get company data
-router.get('/company-data', getCompanyData)
+router.get('/company-data', protectCompany, getCompanyData)
 
 //post a new job
 router.post('/post-job', postJob)
