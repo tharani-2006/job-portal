@@ -7,7 +7,8 @@ import { getCompanyJobApplicants } from '../controllers/companyController.js'
 import { getCompanyPostedJobs } from '../controllers/companyController.js'
 import { changeJobApplicationStatus } from '../controllers/companyController.js'
 import { changeVisibility } from '../controllers/companyController.js'
-
+import { protectCompany } from '../middleware/authMiddleware.js'
+ 
 const router = express.Router()
 
 //register a new company
@@ -20,18 +21,18 @@ router.post('/login', loginCompany)
 router.get('/company-data', protectCompany, getCompanyData)
 
 //post a new job
-router.post('/post-job', postJob)
+router.post('/post-job', protectCompany, postJob)
 
 //get applicants Data of company   
-router.get('/applicants', getCompanyJobApplicants)
+router.get('/applicants', protectCompany, getCompanyJobApplicants)
 
 //get company job list
-router.get('/list-jobs', getCompanyPostedJobs)
+router.get('/list-jobs', protectCompany, getCompanyPostedJobs)
 
 //change application status
-router.put('/change-status', changeJobApplicationStatus)
+router.put('/change-status', protectCompany, changeJobApplicationStatus)
 
 //change application visibility
-router.put('/change-visibility', changeVisibility)
+router.put('/change-visibility', protectCompany, changeVisibility)
 
 export default router
