@@ -18,13 +18,17 @@ await connectCloudinary()
 
 //Middlewares
 app.use(cors())
+
+// Webhooks need access to raw body before JSON parsing
+app.post(
+  '/webhooks',
+  express.raw({ type: 'application/json' }),
+  clerkWebhooks
+)
+
 app.use(express.json())
 
 //Routes
-app.post('/webhooks', 
-  express.raw({ type: 'application/json' }), 
-  clerkWebhooks
-)
 app.use('/api/company', companyRoutes)
 app.use('/api/job', jobRoutes)
 

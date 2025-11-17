@@ -1,4 +1,5 @@
 import express from 'express'
+import upload from '../config/multer.js'
 import { registerCompany } from '../controllers/companyController.js'
 import { loginCompany } from '../controllers/companyController.js'
 import { getCompanyData } from '../controllers/companyController.js'
