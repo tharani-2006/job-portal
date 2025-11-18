@@ -22,7 +22,20 @@ export const AppContextProvider = (props) => {
 
    //Function to fetch jobs
    const fetchJobs = async() => {
-      setJobs(jobsData)
+      try {
+         const response = await fetch('http://localhost:5000/api/job')
+         const data = await response.json()
+         if (response.ok) {
+            setJobs(data.jobs || [])
+         } else {
+            // Fallback to static data if API fails
+            setJobs(jobsData)
+         }
+      } catch (error) {
+         console.error('Failed to fetch jobs:', error)
+         // Fallback to static data if API fails
+         setJobs(jobsData)
+      }
    }
 
    useEffect(() => {
