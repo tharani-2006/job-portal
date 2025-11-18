@@ -89,7 +89,7 @@ const JobListing = () => {
                                     <input
                                         className='scale-125'
                                         type="checkbox"
-                                        onClick={() => handleCategoryChange(category)}
+                                        onChange={() => handleCategoryChange(category)}
                                         checked={selectedCategories.includes(category)}
                                     />
                                     {category}
@@ -109,7 +109,7 @@ const JobListing = () => {
                                     <input
                                         className='scale-125'
                                         type="checkbox"
-                                        onClick={() => handleLocationChange(location)}
+                                        onChange={() => handleLocationChange(location)}
                                         checked={selectedLocations.includes(location)}
                                     />
                                     {location}
@@ -137,7 +137,7 @@ const JobListing = () => {
                             <img onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} src={assets.left_arrow_icon} alt="" />
                         </a>
                         {Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map((_, index) => (
-                            <a href='#job-list'>
+                            <a href='#job-list' key={index}>
                                 <button onClick={() => setCurrentPage(index + 1)} className={`w-10 h-10 flex items-center justify-center border border-gray-300 rounded ${currentPage === index + 1 ? 'bg-blue-100 text-blue-500' : 'text-gray-500'}`}>{index + 1}</button>
                             </a>
                         ))}

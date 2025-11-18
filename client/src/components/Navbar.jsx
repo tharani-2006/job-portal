@@ -10,7 +10,7 @@ const Navbar = () => {
 
   const navigate = useNavigate()
 
-  const {setShowRecruiterLogin} = useContext(AppContext)
+  const {setShowRecruiterLogin, company} = useContext(AppContext)
 
   return (
     <div className="shadow py-4">
@@ -18,7 +18,14 @@ const Navbar = () => {
         <img onClick={() => navigate('/')} className="cursor-pointer" src={assets.logo} alt="Logo" />
 
         <div className="flex gap-4 max-sm:text-xs items-center">
-          {user ? (
+          {company ? (
+            <div className="flex items-center gap-3">
+              <Link to={'/dashboard'}>Dashboard</Link>
+              <p>|</p>
+              <p className="max-sm:hidden">Hi, {company.name}</p>
+              <img className="w-8 h-8 rounded-full border border-gray-300" src={company.image} alt={company.name} />
+            </div>
+          ) : user ? (
             <div className="flex items-center gap-3">
               <Link to={'/applications'}>Applied Jobs</Link>
               <p>|</p>

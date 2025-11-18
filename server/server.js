@@ -1,7 +1,7 @@
+import './config/loadEnv.js'
 import './config/instrument.js'
 import express from 'express'
 import cors from 'cors'
-import 'dotenv/config'
 import connectDB from './config/db.js'
 import * as Sentry from "@sentry/node";
 import { clerkWebhooks } from './controllers/webhook.js'
@@ -14,7 +14,7 @@ const app = express()
 
 // connect to database
 await connectDB()
-await connectCloudinary()
+connectCloudinary()
 
 //Middlewares
 app.use(cors())

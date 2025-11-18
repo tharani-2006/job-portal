@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import {AppContext} from '../context/AppContext'
+import { useNavigate } from 'react-router-dom'
 
 const RecruiterLogin = () => {
 
@@ -12,14 +13,111 @@ const RecruiterLogin = () => {
     const [image, setImage] = useState(false)
 
     const [isTextDataSubmitted, setIsTextDataSubmitted] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState('')
 
-    const {setShowRecruiterLogin} = useContext(AppContext)
+    const {setShowRecruiterLogin, setCompany} = useContext(AppContext)
+    const navigate = useNavigate()
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
+        setError('')
 
-        if (state == 'Sign Up' && !isTextDataSubmitted) {
+        // Handle Sign Up - First step (Next button)
+        if (state === 'Sign Up' && !isTextDataSubmitted) {
             setIsTextDataSubmitted(true)
+            return
+        }
+
+        // Handle Sign Up - Final step (Create Account button)
+        if (state === 'Sign Up' && isTextDataSubmitted) {
+            if (!image) {
+                setError('Please upload a company logo')
+                return
+            }
+
+            setIsLoading(true)
+            try {
+                const formData = new FormData()
+                formData.append('name', name)
+                formData.append('email', email)
+                formData.append('password', password)
+                formData.append('image', image)
+
+                const response = await fetch('http://localhost:5000/api/company/register', {
+                    method: 'POST',
+                    body: formData
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed')
+                }
+
+                // Store company token and data
+                if (data.token && data.company) {
+                    localStorage.setItem('companyToken', data.token)
+                    localStorage.setItem('company', JSON.stringify(data.company))
+                    setCompany(data.company)
+                }
+
+                // Success - close modal, reset form, and redirect to dashboard
+                setShowRecruiterLogin(false)
+                setName('')
+                setEmail('')
+                setPassword('')
+                setImage(false)
+                setIsTextDataSubmitted(false)
+                navigate('/dashboard')
+            } catch (err) {
+                setError(err.message || 'Registration failed. Please try again.')
+            } finally {
+                setIsLoading(false)
+            }
+            return
+        }
+
+        // Handle Login
+        if (state === 'Login') {
+            if (!email || !password) {
+                setError('Please enter email and password')
+                return
+            }
+
+            setIsLoading(true)
+            try {
+                const response = await fetch('http://localhost:5000/api/company/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed')
+                }
+
+                // Store company token and data
+                if (data.token && data.company) {
+                    localStorage.setItem('companyToken', data.token)
+                    localStorage.setItem('company', JSON.stringify(data.company))
+                    setCompany(data.company)
+                }
+
+                // Success - close modal, reset form, and redirect to dashboard
+                setShowRecruiterLogin(false)
+                setEmail('')
+                setPassword('')
+                navigate('/dashboard')
+            } catch (err) {
+                setError(err.message || 'Login failed. Please try again.')
+            } finally {
+                setIsLoading(false)
+            }
         }
     }
 
@@ -41,7 +139,10 @@ const RecruiterLogin = () => {
                         <div className='flex items-center gap-4 my-10'>
                             <label htmlFor="image">
                                 <img className='w-16 rounded-full' src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
-                                <input onChange={e => setImage(e.target.files[0])} type="file" id='image' hidden />
+                                <input onChange={e => {
+                                    setImage(e.target.files[0])
+                                    setError('')
+                                }} type="file" id='image' hidden />
                             </label>
                             <p>Upload Company <br /> Logo</p>
                         </div>
@@ -69,15 +170,38 @@ const RecruiterLogin = () => {
 
                 {state === "Login" && <p className='text-sm text-blue-600 mt-4 cursor-pointer'>Forgot Password?</p>}
 
+                {error && <p className='text-sm text-red-600 mt-4'>{error}</p>}
 
-                <button type='submit' className='bg-blue-600 w-full rounded-full py-2 text-white mt-4'>
-                    {state === 'Login' ? 'Login' : isTextDataSubmitted ? 'Create Account' : 'Next'}
+                <button 
+                    type='submit' 
+                    disabled={isLoading}
+                    className={`bg-blue-600 w-full rounded-full py-2 text-white mt-4 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    {isLoading 
+                        ? 'Processing...' 
+                        : state === 'Login' 
+                            ? 'Login' 
+                            : isTextDataSubmitted 
+                                ? 'Create Account' 
+                                : 'Next'
+                    }
                 </button>
 
                 {
                     state === 'Login'
-                        ? <p className=' mt-5 text-center'>Don't have an account? <span className='cursor-pointer text-blue-600' onClick={() => setState("Sign Up")}>Sign Up</span></p>
-                        : <p className=' mt-5 text-center'>Already have an account? <span className='cursor-pointer text-blue-600' onClick={() => setState("Login")}>Login</span></p>
+                        ? <p className=' mt-5 text-center'>Don't have an account? <span className='cursor-pointer text-blue-600' onClick={() => {
+                            setState("Sign Up")
+                            setError('')
+                            setIsTextDataSubmitted(false)
+                            setImage(false)
+                        }}>Sign Up</span></p>
+                        : <p className=' mt-5 text-center'>Already have an account? <span className='cursor-pointer text-blue-600' onClick={() => {
+                            setState("Login")
+                            setError('')
+                            setIsTextDataSubmitted(false)
+                            setImage(false)
+                            setName('')
+                        }}>Login</span></p>
                 }
 
                 <img onClick={e => setShowRecruiterLogin(false)} className='absolute top-5 right-5 cursor-pointer' src={assets.cross_icon} alt="" />

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Quill from 'quill'
 import { JobCategories, JobLocations } from '../assets/assets'
+import { useNavigate } from 'react-router-dom'
 
 const AddJob = () => {
 
@@ -9,6 +10,10 @@ const AddJob = () => {
   const [category, setCategory] = useState('Programming');
   const [Level, setLevel] = useState('Beginner Level');
   const [salary, setSalary] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate()
 
   const editorRef = useRef(null)
   const quillRef = useRef(null)
@@ -22,9 +27,75 @@ const AddJob = () => {
     }
   }, [])
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    
+    if (!title || !salary) {
+      setError('Please fill in all required fields')
+      return
+    }
+
+    const description = quillRef.current?.root.innerHTML || ''
+    if (!description || description === '<p><br></p>') {
+      setError('Please add a job description')
+      return
+    }
+
+    const token = localStorage.getItem('companyToken')
+    if (!token) {
+      setError('Please login first')
+      navigate('/')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('http://localhost:5000/api/company/post-job', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          location,
+          category,
+          level: Level,
+          salary,
+          visible: true
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add job')
+      }
+
+      // Reset form
+      setTitle('')
+      setLocation('Bangalore')
+      setCategory('Programming')
+      setLevel('Beginner Level')
+      setSalary(0)
+      if (quillRef.current) {
+        quillRef.current.root.innerHTML = ''
+      }
+
+      // Navigate to manage jobs
+      navigate('/dashboard/manage-jobs')
+    } catch (err) {
+      setError(err.message || 'Failed to add job. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
 
   return (
-    <form className='container p-4 flex flex-col w-full items-start gap-3'>
+    <form onSubmit={handleSubmit} className='container p-4 flex flex-col w-full items-start gap-3'>
       <div className='w-full'>
         <p className='mb-2'>Job Title</p>
         <input
@@ -69,10 +140,18 @@ const AddJob = () => {
 
       <div>
         <p className='mb-2'>Job Salary</p>
-        <input min={0} className='w-full px-3 py-2 border-2 border-gray-300 rounded sm:w-[120px]' onChange={e => setSalary.target.value} type="Number" placeholder='2500' />
+        <input min={0} className='w-full px-3 py-2 border-2 border-gray-300 rounded sm:w-[120px]' onChange={e => setSalary(Number(e.target.value))} value={salary} type="Number" placeholder='2500' />
       </div>
 
-      <button className='w-28 py-3 mt-4 bg-black text-white rounded' >ADD</button>
+      {error && <p className='text-red-600 text-sm mt-2'>{error}</p>}
+
+      <button 
+        type='submit'
+        disabled={isLoading}
+        className={`w-28 py-3 mt-4 bg-black text-white rounded ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        {isLoading ? 'Adding...' : 'ADD'}
+      </button>
     </form>
   )
 }

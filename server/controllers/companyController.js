@@ -6,6 +6,15 @@ import Job from "../models/Job.js"
 import Application from "../models/Application.js"
 import generateToken from "../utils/generateToken.js"
 
+// Ensure Cloudinary is configured
+if (process.env.CLOUDINARY_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  })
+}
+
 const buildCompanyResponse = (companyDoc) => ({
   _id: companyDoc._id,
   name: companyDoc.name,
@@ -18,12 +27,37 @@ const buildCompanyResponse = (companyDoc) => ({
 
 const uploadLogo = async (filePath) => {
   if (!filePath) return null
-  const result = await cloudinary.uploader.upload(filePath, {
-    folder: "job-portal/company-logos",
-    resource_type: "image",
+  
+  // Double-check configuration before upload
+  const missingVars = []
+  if (!process.env.CLOUDINARY_NAME) missingVars.push('CLOUDINARY_NAME')
+  if (!process.env.CLOUDINARY_API_KEY) missingVars.push('CLOUDINARY_API_KEY')
+  if (!process.env.CLOUDINARY_API_SECRET) missingVars.push('CLOUDINARY_API_SECRET')
+  
+  if (missingVars.length > 0) {
+    console.error('Missing Cloudinary environment variables:', missingVars.join(', '))
+    throw new Error(`Cloudinary configuration is missing: ${missingVars.join(', ')}. Please check your .env file.`)
+  }
+  
+  // Ensure config is applied
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
   })
-  await fs.unlink(filePath).catch(() => {})
-  return result.secure_url
+  
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "job-portal/company-logos",
+      resource_type: "image",
+    })
+    await fs.unlink(filePath).catch(() => {})
+    return result.secure_url
+  } catch (error) {
+    console.error('Cloudinary upload error:', error)
+    await fs.unlink(filePath).catch(() => {})
+    throw new Error(error.message || 'Failed to upload image to Cloudinary. Please check your Cloudinary configuration.')
+  }
 }
 
 export const registerCompany = async (req, res) => {
@@ -34,7 +68,7 @@ export const registerCompany = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" })
     }
 
-    const existingCompany = await Company.findOne({ email })
+    const existingCompany = await Company.findOne({ email: email.toLowerCase() })
     if (existingCompany) {
       return res.status(400).json({ message: "Company already exists" })
     }
@@ -68,7 +102,7 @@ export const registerCompany = async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(500).json({ message: "Internal server error" })
+    res.status(500).json({ message: error.message || "Internal server error" })
   }
 }
 
@@ -79,7 +113,7 @@ export const loginCompany = async (req, res) => {
       return res.status(400).json({ message: "Missing credentials" })
     }
 
-    const company = await Company.findOne({ email })
+    const company = await Company.findOne({ email: email.toLowerCase() })
       .select("+password")
       .exec()
 
